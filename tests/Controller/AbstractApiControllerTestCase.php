@@ -26,7 +26,7 @@ abstract class AbstractApiControllerTestCase extends WebTestCase
         $this->client = static::createClient();
         $this->entityManager = $this->client
                                     ->getContainer()
-                                    ->get('doctrine.orm.entity_manager');
+                                    ->get('doctrine.orm.entity_manager');;
     }
 
     /** {@inheritDoc} */
@@ -35,8 +35,18 @@ abstract class AbstractApiControllerTestCase extends WebTestCase
         $this->ensureKernelShutdown();
     }
 
-    /** @return void */
-    protected function createApiUser(): void
+    /**
+     * Create user per test
+     *
+     * @param string $email
+     * @param string $password
+     *
+     * @return void
+     */
+    protected function createApiUser(
+        string $email = self::API_USER_EMAIL,
+        string $password = self::API_PASSWORD,
+    ): void
     {
         $entityManager = $this->client
                               ->getContainer()
@@ -45,11 +55,11 @@ abstract class AbstractApiControllerTestCase extends WebTestCase
                                ->get('security.user_password_hasher');
 
         $user = new User();
-        $user->setEmail(self::API_USER_EMAIL);
+        $user->setEmail($email);
         $user->setPassword(
             $passwordHasher->hashPassword(
                 $user,
-                self::API_PASSWORD
+                $password
             )
         );
 
@@ -57,33 +67,47 @@ abstract class AbstractApiControllerTestCase extends WebTestCase
         $entityManager->flush();
     }
 
-    /** @return void */
+    /**
+     * Remove user after test
+     *
+     * @return void
+     */
     protected function removeUser(): void
     {
 
         $repo = $this->entityManager
                      ->getRepository(User::class);
 
-        $user = $repo->findOneBy(['email' => self::API_USER_EMAIL]);
+        $users = $repo->findAll();
 
-        $this->entityManager->remove($user);
+        foreach ($users as $user) {
+            $this->entityManager->remove($user);
+        }
+
         $this->entityManager->flush();
     }
 
     /**
+     * @param string $email
+     * @param string $password
+     *
      * @return string
      */
-    protected function getAuthToken(): string
+    protected function getAuthToken(
+        string $email = self::API_USER_EMAIL,
+        string $password = self::API_PASSWORD
+    ): string
     {
         $this->client->request(
             'POST',
             '/api/login',
             [],
             [],
-            ['CONTENT_TYPE' => 'application/json'],
-            json_encode([
-                'email' => self::API_USER_EMAIL,
-                'password' => self::API_PASSWORD,
+            $this->getHeaders(),
+            json_encode(
+                [
+                    'email' => $email,
+                    'password' => $password,
                 ]
             )
         );
@@ -97,5 +121,18 @@ abstract class AbstractApiControllerTestCase extends WebTestCase
         $token = $data['token'];
 
         return $token;
+    }
+
+    protected function getHeaders(?string $token = null): array
+    {
+        $headers = [
+            'CONTENT_TYPE' => 'application/json'
+        ];
+
+        if ($token) {
+            $headers['HTTP_AUTHORIZATION'] = sprintf('Bearer %s' , $token);
+        }
+
+        return $headers;
     }
 }

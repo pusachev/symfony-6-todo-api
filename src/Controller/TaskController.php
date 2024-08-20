@@ -15,6 +15,12 @@ use Symfony\Component\Security\Http\Attribute\IsGranted;
 #[Route('/api/tasks')]
 class TaskController extends AbstractController
 {
+    /**
+     * @param EntityManagerInterface $em
+     * @param SerializerInterface $serializer
+     *
+     * @return JsonResponse
+     */
     #[Route('', name: 'task_list', methods: ['GET'])]
     #[IsGranted('IS_AUTHENTICATED_FULLY')]
     public function list(
@@ -25,9 +31,21 @@ class TaskController extends AbstractController
         $tasks = $this->getUser()->getTasks();
         $data = $serializer->serialize($tasks, 'json');
 
-        return new JsonResponse($data, 200, [], true);
+        return new JsonResponse(
+            $data,
+            200,
+            [],
+            true
+        );
     }
 
+    /**
+     * @param Request $request
+     * @param EntityManagerInterface $em
+     * @param SerializerInterface $serializer
+     *
+     * @return JsonResponse
+     */
     #[Route('', name: 'task_create', methods: ['POST'])]
     #[IsGranted('IS_AUTHENTICATED_FULLY')]
     public function create(
@@ -41,11 +59,28 @@ class TaskController extends AbstractController
         $em->persist($task);
         $em->flush();
 
-        $data = $serializer->serialize($task, 'json', ['groups' => 'task:read']);
+        $data = $serializer->serialize(
+            $task,
+            'json',
+            [
+                'groups' => 'task:read'
+            ]
+        );
 
-        return new JsonResponse($data, 201, [], true);
+        return new JsonResponse(
+            $data,
+            201,
+            [],
+            true
+        );
     }
 
+    /**
+     * @param Task $task
+     * @param SerializerInterface $serializer
+     *
+     * @return JsonResponse
+     */
     #[Route('/{id}', name: 'task_view', methods: ['GET'])]
     #[IsGranted('IS_AUTHENTICATED_FULLY')]
     public function view(
@@ -57,9 +92,28 @@ class TaskController extends AbstractController
             throw new AccessDeniedHttpException();
         }
 
-        return new JsonResponse($serializer->serialize($task, 'json', ['groups' => 'task:read']), 200, [], true);
+        return new JsonResponse(
+            $serializer->serialize(
+                $task,
+                'json',
+                [
+                    'groups' => 'task:read'
+                ]
+            ),
+            200,
+            [],
+            true
+        );
     }
 
+    /**
+     * @param Request $request
+     * @param Task $task
+     * @param EntityManagerInterface $em
+     * @param SerializerInterface $serializer
+     *
+     * @return JsonResponse
+     */
     #[Route('/{id}', name: 'task_update', methods: ['PUT'])]
     #[IsGranted('IS_AUTHENTICATED_FULLY')]
     public function update(
@@ -74,14 +128,33 @@ class TaskController extends AbstractController
         }
 
         $data = json_decode($request->getContent(), true);
+
         $task->setTitle($data['title'] ?? $task->getTitle());
         $task->setDescription($data['description'] ?? $task->getDescription());
         $task->setComplete($data['complete'] ?? $task->isComplete());
+
         $em->flush();
 
-        return new JsonResponse($serializer->serialize($task, 'json', ['groups' => 'task:read']), 200, [], true);
+        return new JsonResponse(
+            $serializer->serialize(
+                $task,
+                'json',
+                [
+                    'groups' => 'task:read'
+                ]
+            ),
+            200,
+            [],
+            true
+        );
     }
 
+    /**
+     * @param Task $task
+     * @param EntityManagerInterface $em
+     *
+     * @return JsonResponse
+     */
     #[Route('/{id}', name: 'task_delete', methods: ['DELETE'])]
     #[IsGranted('IS_AUTHENTICATED_FULLY')]
     public function delete(
@@ -96,6 +169,9 @@ class TaskController extends AbstractController
         $em->remove($task);
         $em->flush();
 
-        return new JsonResponse(null, 204);
+        return new JsonResponse(
+            null,
+            204
+        );
     }
 }

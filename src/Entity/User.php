@@ -16,17 +16,23 @@ use Symfony\Component\Serializer\Annotation\Groups;
 #[ORM\UniqueConstraint(name: 'UNIQ_IDENTIFIER_EMAIL', fields: ['email'])]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
+    /**
+     * @var int|null
+     */
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'SEQUENCE')]
     #[ORM\Column(type: 'integer')]
     #[Groups(["user:read", "task:read"])]
     private ?int $id = null;
 
+    /**
+     * @var string
+     */
     #[ORM\Column(type:'string', length: 180, unique: true)]
     #[Assert\NotBlank]
     #[Assert\Email]
     #[Groups(["user:read", "task:read"])]
-    private ?string $email = null;
+    private ?string $email;
 
     /**
      * @var list<string> The user roles
@@ -54,16 +60,26 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->tasks = new ArrayCollection();
     }
 
+    /**
+     * @return int|null
+     */
     public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getEmail(): ?string
+    /**
+     * @return string
+     */
+    public function getEmail(): string
     {
         return $this->email;
     }
 
+    /**
+     * @param string $email
+     * @return $this
+     */
     public function setEmail(string $email): static
     {
         $this->email = $email;
@@ -113,6 +129,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->password;
     }
 
+    /**
+     * Set hashed password
+     *
+     * @param string $password
+     * @return $this
+     */
     public function setPassword(string $password): static
     {
         $this->password = $password;
@@ -137,6 +159,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this->tasks;
     }
 
+    /**
+     * @param Task $task
+     * @return $this
+     */
     public function addTask(Task $task): static
     {
         if (!$this->tasks->contains($task)) {
@@ -147,6 +173,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
+    /**
+     * @param Task $task
+     * @return $this
+     */
     public function removeTask(Task $task): static
     {
         if ($this->tasks->removeElement($task)) {
