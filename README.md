@@ -44,7 +44,7 @@ To get started with this project, you need to have PHP, Composer, and Symfony CL
 
 ```bash
 git clone https://github.com/pusachev/symfony-6-todo-api.git
-cd todo-list
+cd symfony-6-todo-api
 ```
 
 ### Install Dependencies
