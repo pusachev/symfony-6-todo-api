@@ -43,7 +43,7 @@ To get started with this project, you need to have PHP, Composer, and Symfony CL
 ### Clone the Repository
 
 ```bash
-git clone https://github.com/pusachev/todo-list.git
+git clone https://github.com/pusachev/symfony-6-todo-api.git
 cd todo-list
 ```
 
