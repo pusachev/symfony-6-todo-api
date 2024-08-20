@@ -4,6 +4,7 @@ This repository contains a ToDo API built with Symfony 6. The API allows users t
 
 ## Table of Contents
 
+- [Requirements](#requirements)
 - [Installation](#installation)
 - [Configuration](#configuration)
 - [Database Setup](#database-setup)
@@ -12,6 +13,28 @@ This repository contains a ToDo API built with Symfony 6. The API allows users t
 - [Running Tests](#running-tests)
 - [Contributing](#contributing)
 - [License](#license)
+
+## Requirements
+
+Before setting up the project, ensure your environment meets the following requirements:
+
+- **PHP**: Version 8.1 or higher
+- **Composer**: Version 2.0 or higher
+- **Symfony CLI**: Optional but recommended for local development
+- **PostgreSQL**: Version 16 or higher (if not using Docker)
+- **Docker**: Version 20.10 or higher (if using Docker)
+- **Docker Compose**: Version 1.28 or higher (if using Docker)
+
+### Recommended Extensions for PHP
+
+Ensure the following PHP extensions are enabled:
+
+- `pdo_pgsql` (for PostgreSQL database connection)
+- `intl` (for internationalization support)
+- `mbstring` (for string handling)
+- `openssl` (for security and encryption)
+- `json` (for JSON data handling)
+- `xml` (for XML parsing)
 
 ## Installation
 
@@ -75,6 +98,10 @@ You can start the Symfony development server by running:
 
 ```bash
 symfony server:start
+```
+
+```bash
+docker-compose up -d
 ```
 
 The application will be accessible at http://127.0.0.1:8000.
